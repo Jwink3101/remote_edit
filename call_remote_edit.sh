@@ -86,7 +86,7 @@ else
             echo "Manual Remote Edit. Enter the following:"
             echo "    A: $txt"
         else
-            REMOTE=$(who|grep "\b$TTY\b" | cut -d "(" -f2 | cut -d ")" -f1 >/dev/null 2>&1)
+            REMOTE=$(who|grep "\b$TTY\b" | cut -d "(" -f2 | cut -d ")" -f1)
             echo "${exttxt}Remote Edit: $txt"
             ssh ${REMUSER}@${REMOTE}  "echo $txt >> /var/tmp/remote_edit/new" 2>/dev/null || echo "  ERROR: Is this a folder? Is remote_editor running?"
         fi
