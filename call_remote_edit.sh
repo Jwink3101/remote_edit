@@ -51,6 +51,12 @@ else
     TTY=$(echo $SSH_TTY | sed 's@/dev/@@g')
     REMUSER=$USER # Modify this if the user names are not the same
 
+    manualmode='' # default, unset
+    if [ "$1" == '-m' ]; then
+        manualmode='set' # now it exists on a `! -z` flag
+        shift
+    fi
+
     # It seems as though "$@" already has the wild-cards expanded if they exist but keep this here anyway
     for j in "$@";do # loop through files
         F=$(ls "$j" 2> /dev/null | wc -l) #ref 1, returns 1 if the file exists
@@ -82,7 +88,7 @@ else
         fi
 
         txt="$txt$USER@$HOSTNAME ${FILE}" 	
-        if [ ! -z $REMOTE_EDIT_MANUAL ]; then
+        if [ ! -z $REMOTE_EDIT_MANUAL ] || [ ! -z $manualmode ]; then
             echo "Manual Remote Edit. Enter the following:"
             echo "    A: $txt"
         else

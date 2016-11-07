@@ -108,7 +108,7 @@ def pause_prompt():
     
     if rlist:
         s0 = sys.stdin.readline()
-        s = s0.lower().strip()
+        s = s0.lower().expandtabs().strip()
         if len(s) == 0: return False
         if s[0] == 'x':
             return True

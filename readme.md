@@ -73,7 +73,20 @@ Finally, if you can not SSH back to the loca machine from the remote, specify th
 
     export REMOTE_EDIT_MANUAL=1
 
-which will then echo the command to add to the local machine.
+which will then echo the command to add to the local machine without having to ssh to the local machine
+
+**OR**
+
+You can specify the edit command with `-m` as the first flag. For example, if you type *on the remote machine* (with `edit` aliased to `call_remote_edit`:
+
+    $ edit -m file1
+
+regardless of the `REMOTE_EDIT_MANUAL`, you will see:
+
+    Manual Remote Edit. Enter the following:
+        A: user@host /full/path/to/file1
+
+for you to enter on the local machine
 
 ## Methodology
 
