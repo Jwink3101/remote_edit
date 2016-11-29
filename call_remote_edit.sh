@@ -57,6 +57,10 @@ else
         shift
     fi
 
+    if [ ! -z $REMOTE_EDIT_MANUAL ] || [ ! -z $manualmode ]; then
+        echo "Manual Remote Edit. Enter the following:"
+    fi
+
     # It seems as though "$@" already has the wild-cards expanded if they exist but keep this here anyway
     for j in "$@";do # loop through files
         F=$(ls "$j" 2> /dev/null | wc -l) #ref 1, returns 1 if the file exists
@@ -89,7 +93,6 @@ else
 
         txt="$txt$USER@$HOSTNAME ${FILE}" 	
         if [ ! -z $REMOTE_EDIT_MANUAL ] || [ ! -z $manualmode ]; then
-            echo "Manual Remote Edit. Enter the following:"
             echo "    A: $txt"
         else
             REMOTE=$(who|grep "\b$TTY\b" | cut -d "(" -f2 | cut -d ")" -f1)
