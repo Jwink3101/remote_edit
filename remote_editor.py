@@ -283,10 +283,10 @@ if __name__=='__main__':
     for  o,a in opts:
         if o in ['-f','--force']:
             force = True
-        o in ["-h","--help"]:
+        if o in ["-h","--help"]:
             print(usage)
             sys.exit()
-        o in ['-t','--polling']:
+        if o in ['-t','--polling']:
             timeout = float(a)
     
     # Try to get the opencmd
