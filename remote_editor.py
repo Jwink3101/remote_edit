@@ -115,7 +115,7 @@ def pause_prompt():
         elif s[0] == 'l':
             print "Watching:"
             for fileDict in openFiles.itervalues():
-                print('    {userhost:s}:{remotePath:s}'.format(**fileDict))  
+                print('    {userhost:s}:{remotePath:s}\n      Local Path:{fileName_full:s}'.format(**fileDict))  
         elif s[0] == 'a':
             if s0[1] in [' ','\t']: # Also allow A [-]user@host /path/to/file
                 s0 = s0.split(None,1)
