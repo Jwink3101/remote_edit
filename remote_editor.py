@@ -6,6 +6,7 @@ from datetime import datetime
 import time
 from select import select
 import getopt
+import hashlib
 
 tmpdir = '/var/tmp/remote_edit/' # End in a /
 
@@ -22,6 +23,11 @@ exittxt = """\
     R   - Referesh all files
 =====================================================
 """
+
+def _md5(input):
+    m = hashlib.md5()
+    m.update(input)
+    return m.hexdigest()
 
 def main(force=False):
 
@@ -158,7 +164,7 @@ def new_file(file,openFile=True):
     # or
     #   -${USER}"@"${HOSTNAME} " "${FILE}"
     # if it is a new file
-
+    
     NEW = False
     if file.startswith('-'):
         NEW = True
@@ -169,6 +175,7 @@ def new_file(file,openFile=True):
     except:
         print "Error with {:s}".format(file)
         return
+
     
     fileDict = {}
     fileDict['filestring'] = file
@@ -180,15 +187,22 @@ def new_file(file,openFile=True):
     fileDict['remotePath'] = filepath
     fileDict['remotePath_s'] = fileDict['remotePath'].replace(' ','\ ')
     
-    fileDict['localDir'] = str(abs(hash(filepath))) + '/'
+    if name_only:
+        fileDict['localDir'] = _md5(filepath)[:5] + '/'
+    else:
+        fileDict['localDir'] = os.path.join(_md5(filepath)[:3],
+                            userhost.split('@',1)[-1],
+                            os.path.split(filepath)[0][1:])
+        
+        
     fileDict['fileName'] = os.path.split(filepath)[1]
     
     # make the directory if it doesn't exist
-    fileDict['localDir_full'] = tmpdir + fileDict['localDir']
+    fileDict['localDir_full'] = os.path.join(tmpdir,fileDict['localDir'])
     if not os.path.exists(fileDict['localDir_full'] ):
         os.makedirs(fileDict['localDir_full'] )
     
-    fileDict['fileName_full'] = fileDict['localDir_full'] + fileDict['fileName']
+    fileDict['fileName_full'] = os.path.join(fileDict['localDir_full'],fileDict['fileName'])
     fileDict['fileName_full_s'] = fileDict['fileName_full'].replace(' ','\ ')
     
     if NEW:
@@ -240,6 +254,10 @@ Options: ( `=` requires input, [default])
         
     -h      
         Display this help
+
+    -s,--short
+        Set the folder names to be shorter. Otherwise, it will replicate
+        the full path
     
     -t=,--polling=
         [0.333] Specify the time between polling for an updated file
@@ -262,8 +280,10 @@ EDITOR String: (see `readme.md` for more detail)
 
 if __name__=='__main__':
     
+    os.system('echo -ne "\033]0;{name}\007"'.format(name='remote edit watcher'))
+    
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "fht:", ["force","help","polling="])
+        opts, args = getopt.getopt(sys.argv[1:], "fhst:", ["force","help","short","polling="])
     except getopt.GetoptError as err:
         # print help information and exit:
         print str(err) # will print something like "option -a not recognized"
@@ -278,7 +298,7 @@ if __name__=='__main__':
     # Defaults
     force = False
     timeout = 0.3333
-
+    name_only = False
     
     for  o,a in opts:
         if o in ['-f','--force']:
@@ -286,6 +306,8 @@ if __name__=='__main__':
         if o in ["-h","--help"]:
             print(usage)
             sys.exit()
+        if o in ['-s','--short']:
+            name_only = True        
         if o in ['-t','--polling']:
             timeout = float(a)
     

@@ -48,6 +48,23 @@ Specify the text as `/path/to/editor {0:s}` since Python will use the `.format()
     * Example: `$ ./remote_editor.py "/path/to/editor \"{0:s}\""`
 3. Do not specify. Will have to open it manually
 
+There are also other options in the call which can modify the behavior
+
+    -f,--force
+        Force starting this instance. Do not prompt if it thinks another is
+        running. Will close the other
+        
+    -h      
+        Display this help
+
+    -s,--short
+        Set the folder names to be shorter. Otherwise, it will replicate
+        the full path
+    
+    -t=,--polling=
+        [0.333] Specify the time between polling for an updated file
+
+
 ### Remote
 
 The remote call script is also designed to work locally so you can always just specify the same command. However, you must specify a `LOCAL_EDITOR` environmental variable but **not** with the `{0:s}` format. Instead, just as a bash program. For example, `gedit` is a local GUI editor but it also tends to spew lots of warnings. I created the file:
@@ -61,9 +78,11 @@ Then, in the `.bash_profile`, I specify:
 
     export LOCAL_EDITOR=/path/to/gedit_wrapper.sh
 
-The other config is *only* needed if your usernames are not the same. In `call_remote_edit.sh` is the line:
+By default, it will assume the remote machine's username is the same as your local one. If not, set in your bash environment (or `.bashrc`/`.bash_profile`):
 
-    REMUSER=$USER # Modify this if the user names are not the same
+    export REMOTE_USER='username'
+
+Otherwise, `REMOTE_USER` will default to `$USER`
 
 As the comment suggest, modify that to the remote user name if they are not the same.
 

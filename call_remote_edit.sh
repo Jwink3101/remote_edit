@@ -49,8 +49,11 @@ else
     HOSTNAME=`hostname`
     USER=`whoami`
     TTY=$(echo $SSH_TTY | sed 's@/dev/@@g')
-    REMUSER=$USER # Modify this if the user names are not the same
-
+    
+    if [ -z $REMOTE_USER ]; then
+        REMOTE_USER=$USER
+    fi
+    
     manualmode='' # default, unset
     if [ "$1" == '-m' ]; then
         manualmode='set' # now it exists on a `! -z` flag
@@ -97,7 +100,7 @@ else
         else
             REMOTE=$(who|grep "\b$TTY\b" | cut -d "(" -f2 | cut -d ")" -f1)
             echo "${exttxt}Remote Edit: $txt"
-            ssh ${REMUSER}@${REMOTE}  "echo $txt >> /var/tmp/remote_edit/new" 2>/dev/null || echo "  ERROR: Is this a folder? Is remote_editor running?"
+            ssh ${REMOTE_USER}@${REMOTE}  "echo $txt >> /var/tmp/remote_edit/new" 2>/dev/null || echo "  ERROR: Is this a folder? Is remote_editor running?"
         fi
         
     done
