@@ -2,6 +2,8 @@
 
 A tool to open remote documents and sync on edit. Call the function from a remote machine, and open it locally in an editor of your choosing.
 
+Compatible with python 2 and 3
+
 ## Usage
 
 On your local machine, run `python remote_editor.py` (or `pypy remote_editor.py`). In theory, you can run this in the background and/or in a subshell but you will have to either force close it or launch another instance (there is a fail-safe so two instances can't run at the same time).

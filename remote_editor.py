@@ -8,11 +8,16 @@ from select import select
 import getopt
 import hashlib
 
+if sys.version_info[0] == 2:
+    input = raw_input
+else:
+    unicode = str
+
 tmpdir = '/var/tmp/remote_edit/' # End in a /
 
 openFiles = {}
 
-starttime = str(time.time())
+starttime = unicode(time.time())
 exittxt = """\
 >> Options: (case insensitive)
     X   - break out (or CTRL + C)
@@ -24,9 +29,10 @@ exittxt = """\
 =====================================================
 """
 
+
 def _md5(input):
     m = hashlib.md5()
-    m.update(input)
+    m.update(unicode(input).encode('utf8'))
     return m.hexdigest()
 
 def main(force=False):
@@ -34,7 +40,7 @@ def main(force=False):
     
     init(force=force)
     
-    print exittxt
+    print(exittxt)
     
     try:
         while True:
@@ -44,7 +50,7 @@ def main(force=False):
     except KeyboardInterrupt:
         pass
         
-    print "Exiting. Clearing tmp files."
+    print("Exiting. Clearing tmp files.")
     if os.path.exists(tmpdir):
         shutil.rmtree(tmpdir)
 
@@ -58,9 +64,9 @@ def init(force=False):
             print('    * Previous run was exited forcibly (CTRL-X)')
             print('    * Another instance is running')
             print('Do you wish to continue (and force quite previous instance)? [Y/N]')
-            response = raw_input(' > ')
+            response = input(' > ')
             if not response.lower().startswith('y'): 
-                print 'Exiting'
+                print('Exiting')
                 sys.exit()
             print('Closing previous instance')
         shutil.rmtree(tmpdir)
@@ -94,7 +100,7 @@ def watch_loop():
             new_file(file)
     
     # Loop over the files and look for mod times
-    for fileDict in openFiles.itervalues():
+    for fileDict in openFiles.values():
         # Get the current date
         moddate = modification_date(fileDict['fileName_full'])
         if moddate > fileDict['date']:
@@ -103,10 +109,10 @@ def watch_loop():
             # push it
             cmd = 'rsync -az --no-p -e"ssh -q" "{fileName_full:s}" "{userhost:s}:{remotePath_s:s}"'.format(**fileDict)
             os.system(cmd)
-            print('Modified:{userhost:s}:{remotePath:s}'.format(**fileDict))
+            print(('Modified:{userhost:s}:{remotePath:s}'.format(**fileDict)))
     
     if anyMod:
-        print exittxt
+        print(exittxt)
 
 def pause_prompt():
     global timeout
@@ -119,8 +125,8 @@ def pause_prompt():
         if s[0] == 'x':
             return True
         elif s[0] == 'l':
-            print "Watching:"
-            for fileDict in openFiles.itervalues():
+            print("Watching:")
+            for fileDict in openFiles.values():
                 print('    {userhost:s}:{remotePath:s}\n      Local Path:{fileName_full:s}'.format(**fileDict))  
         elif s[0] == 'a':
             if s0[1] in [' ','\t']: # Also allow A [-]user@host /path/to/file
@@ -133,17 +139,17 @@ def pause_prompt():
             s0 = s0[-1].strip()
             new_file(s0)
             if s0.startswith('-'):
-                print "WARNING: Remote file not pulled. Will overwrite on save"
+                print("WARNING: Remote file not pulled. Will overwrite on save")
         elif s[0] == 'r':
             refresh_all()
         else:
-            print "Invalid Entry"
-            print exittxt
+            print("Invalid Entry")
+            print(exittxt)
     return False
 
 def refresh_all():
     """ Refresh all files by acting as if they are just added """
-    for file in openFiles.itervalues():
+    for file in openFiles.values():
         file = file['filestring']
         file = file.strip()
         if file.startswith('-'):
@@ -173,7 +179,7 @@ def new_file(file,openFile=True):
     try:
         userhost,filepath = file.strip().split(' ',1)
     except:
-        print "Error with {:s}".format(file)
+        print("Error with {:s}".format(file))
         return
 
     
@@ -279,20 +285,20 @@ EDITOR String: (see `readme.md` for more detail)
 """
 
 if __name__=='__main__':
-    
+    #print(sys.version)
     os.system('echo -ne "\033]0;{name}\007"'.format(name='remote edit watcher'))
     
     try:
         opts, args = getopt.getopt(sys.argv[1:], "fhst:", ["force","help","short","polling="])
     except getopt.GetoptError as err:
         # print help information and exit:
-        print str(err) # will print something like "option -a not recognized"
-        print "\n Printing Help:\n"
+        print('{}'.format(err)) # will print something like "option -a not recognized"
+        print("\n Printing Help:\n")
         print(usage)
         sys.exit(2)
   
-    print "Running remote_editor."
-    print "Restarting will clear all open files"
+    print("Running remote_editor.")
+    print("Restarting will clear all open files")
     
     ## Process the options
     # Defaults
@@ -314,17 +320,17 @@ if __name__=='__main__':
     # Try to get the opencmd
     global opencmd
     opencmd = ''
-    if 'REMOTE_EDITOR' in os.environ.keys() and len(os.environ['REMOTE_EDITOR'])>0:
+    if 'REMOTE_EDITOR' in list(os.environ.keys()) and len(os.environ['REMOTE_EDITOR'])>0:
         opencmd = os.environ['REMOTE_EDITOR']
-        print "Remote Edit set in environmental variable"
-        print "   " + opencmd
+        print("Remote Edit set in environmental variable")
+        print("   " + opencmd)
     elif len(args)>0:
         opencmd = args[0]
-        print "Remote Edit set function call"
-        print "   " + opencmd        
+        print("Remote Edit set function call")
+        print("   " + opencmd)        
     
     else:
-        print "No editor set"
+        print("No editor set")
     
     main(force=force)
 
