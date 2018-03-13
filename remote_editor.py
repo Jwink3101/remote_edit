@@ -92,10 +92,13 @@ def watch_loop():
     
     if os.path.exists(tmpdir+'new'):
         anyMod = True
-        # Read the file, delete it, then work on it
-        with open(tmpdir+'new') as F:
+        # Move the file then read the new one. This *should* prevent a race
+        # condition where files are being added to the list (which happens via
+        # a `>>` call) while reading.
+        shutil.move(tmpdir+'new',tmpdir+'newtmp')
+        with open(tmpdir+'newtmp') as F:
             files = F.readlines()
-        os.remove(tmpdir+'new')
+        os.remove(tmpdir+'newtmp')
         for file in files:
             new_file(file)
     
@@ -109,7 +112,7 @@ def watch_loop():
             # push it
             cmd = 'rsync -az --no-p -e"ssh -q" "{fileName_full:s}" "{userhost:s}:{remotePath_s:s}"'.format(**fileDict)
             os.system(cmd)
-            print(('Modified:{userhost:s}:{remotePath:s}'.format(**fileDict)))
+            print(('Modified: {userhost:s}:{remotePath:s}'.format(**fileDict)))
     
     if anyMod:
         print(exittxt)

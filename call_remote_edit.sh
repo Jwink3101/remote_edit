@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-
+# Remote editor component on the remote system
 
 # First see if you're remote. If not use local editor
-# Adapted from #2
+# Adapted from [2]
 SESSION_TYPE="direct"
 if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
     SESSION_TYPE="ssh"
@@ -42,7 +42,7 @@ if [ $SESSION_TYPE == 'direct' ]; then
 #     done
     if [ ! -z "$LOCAL_EDITOR" ]; then
         eval "$LOCAL_EDITOR $@"
-    else
+    else # Default to normal environmental variable
         eval "$EDITOR $@"
     fi
 else
@@ -68,25 +68,25 @@ else
     for j in "$@";do # loop through files
         F=$(ls "$j" 2> /dev/null | wc -l) #ref 1, returns 1 if the file exists
     
-    
         txt=""
         if [ "$F" == "0" ]; then
             touch "$j" # Create the file, then delete it. Will be recreated if saves remotely
         fi
 
-        FILE=$(ls "$j")
+        FILE=$(ls "$j") # expansions
 
-        if [[ "$FILE" != /* ]]; then
+        if [[ "$FILE" != /* ]]; then # Already specified as a full path
             FILE="$PWD/$FILE"
         fi
     
-        if [ "$F" == "0" ]; then
+        if [ "$F" == "0" ]; then # remove the temporarily created file
             rm "$j"
             txt='-'
         fi
     
+        # Handle links
         exttxt=""
-        if [ -L "$FILE" ]; then
+        if [ -L "$FILE" ]; then  
             FILE0=$FILE
             FILE=$(ls -l "$FILE" | sed -e 's/.* -> //')
             FILE=$(echo "$(cd "$(dirname "$FILE")"; pwd)/$(basename "$FILE")") # Expand relative paths -- [3]
@@ -108,6 +108,6 @@ fi
 
 
 # ref:
-#1: http://stackoverflow.com/questions/6363441/check-if-a-file-exists-with-wildcard-in-shell-script
-#2: http://unix.stackexchange.com/a/9607
-#3: http://stackoverflow.com/a/3915420/3633154
+# [1]: http://stackoverflow.com/questions/6363441/check-if-a-file-exists-with-wildcard-in-shell-script
+# [2]: http://unix.stackexchange.com/a/9607
+# [3]: http://stackoverflow.com/a/3915420/3633154
