@@ -6,7 +6,7 @@ Compatible with python 2 and 3
 
 ## Usage
 
-On your local machine, run `python remote_editor.py` (or `pypy remote_editor.py`). In theory, you can run this in the background and/or in a subshell but you will have to either force close it or launch another instance (there is a fail-safe so two instances can't run at the same time).
+On your *local* machine, run `python remote_editor.py` (or `pypy remote_editor.py`). In theory, you can run this in the background and/or in a subshell but you will have to either force close it or launch another instance (there is a fail-safe so two instances can't run at the same time).
 
 On your remote machine, open the files with `call_remote_edit.sh` (which you should probably alias). Note that `call_remote_edit.sh` **can accept `stdin` (pipped input)** by making it into a temp file and opening that.
 
@@ -31,7 +31,7 @@ The following can be used to generate SSH keys and send them to the other machin
 
     $ cd
     $ ssh-keygen -t rsa
-    $ # Hit Enter twice.
+    $ # Enter a password (suggested) or to skip, hit Enter twice.
     $ cat ~/.ssh/id_rsa.pub | ssh user@other-system "mkdir -p ~/.ssh && cat >>  ~/.ssh/authorized_keys" 
 
 ## Config
